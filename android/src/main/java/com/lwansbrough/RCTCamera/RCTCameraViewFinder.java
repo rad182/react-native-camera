@@ -34,6 +34,8 @@ import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
 
+import org.reactnative.camera.RNCameraViewHelper;
+
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
     private int _captureMode;
@@ -385,7 +387,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
-                
+
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
@@ -394,7 +396,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-                
+
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());

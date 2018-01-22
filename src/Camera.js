@@ -11,7 +11,7 @@ import {
   PermissionsAndroid,
   ActivityIndicator,
   View,
-  Text,
+  Text
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -40,7 +40,8 @@ function convertNativeProps(props) {
   }
 
   if (typeof props.captureQuality === 'string') {
-    newProps.captureQuality = Camera.constants.CaptureQuality[props.captureQuality];
+    newProps.captureQuality =
+      Camera.constants.CaptureQuality[props.captureQuality];
   }
 
   if (typeof props.captureMode === 'string') {
@@ -48,7 +49,8 @@ function convertNativeProps(props) {
   }
 
   if (typeof props.captureTarget === 'string') {
-    newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
+    newProps.captureTarget =
+      Camera.constants.CaptureTarget[props.captureTarget];
   }
 
   // do not register barCodeTypes if no barcode listener
@@ -71,7 +73,7 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode,
+    TorchMode: CameraManager.TorchMode
   };
 
   static propTypes = {
@@ -100,7 +102,7 @@ export default class Camera extends Component {
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
     notAuthorizedView: PropTypes.element,
-    pendingAuthorizationView: PropTypes.element,
+    pendingAuthorizationView: PropTypes.element
   };
 
   static defaultProps = {
@@ -127,13 +129,13 @@ export default class Camera extends Component {
         style={{
           flex: 1,
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <Text
           style={{
             textAlign: 'center',
-            fontSize: 16,
+            fontSize: 16
           }}
         >
           Camera not authorized
@@ -145,12 +147,12 @@ export default class Camera extends Component {
         style={{
           flex: 1,
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <ActivityIndicator size="small" />
       </View>
-    ),
+    )
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -167,16 +169,19 @@ export default class Camera extends Component {
     this.state = {
       isAuthorized: false,
       isAuthorizationChecked: false,
-      isRecording: false,
+      isRecording: false
     };
   }
 
   async componentWillMount() {
     this._addOnBarCodeReadListener();
 
-    let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode });
+    let { captureMode } = convertNativeProps({
+      captureMode: this.props.captureMode
+    });
     let hasVideoAndAudio =
-      this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
+      this.props.captureAudio &&
+      captureMode === Camera.constants.CaptureMode.video;
 
     if (Platform.OS === 'ios') {
       let check = hasVideoAndAudio
@@ -188,20 +193,25 @@ export default class Camera extends Component {
         this.setState({ isAuthorized, isAuthorizationChecked: true });
       }
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-        title: this.props.permissionDialogTitle,
-        message: this.props.permissionDialogMessage,
-      });
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: this.props.permissionDialogTitle,
+          message: this.props.permissionDialogMessage
+        }
+      );
 
       // On devices before SDK version 23, the permissions are automatically granted if they appear in the manifest,
       // so check and request should always be true.
       // https://github.com/facebook/react-native-website/blob/master/docs/permissionsandroid.md
       const isAuthorized =
-        Platform.Version >= 23 ? granted === PermissionsAndroid.RESULTS.GRANTED : granted === true;
+        Platform.Version >= 23
+          ? granted === PermissionsAndroid.RESULTS.GRANTED
+          : granted === true;
 
       this.setState({
         isAuthorized,
-        isAuthorizationChecked: true,
+        isAuthorizationChecked: true
       });
     } else {
       this.setState({ isAuthorized: true, isAuthorizationChecked: true });
@@ -228,8 +238,14 @@ export default class Camera extends Component {
     this._removeOnBarCodeReadListener();
     if (onBarCodeRead) {
       this.cameraBarCodeReadListener = Platform.select({
-        ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
-        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid', this._onBarCodeRead),
+        ios: NativeAppEventEmitter.addListener(
+          'CameraBarCodeRead',
+          this._onBarCodeRead
+        ),
+        android: DeviceEventEmitter.addListener(
+          'CameraBarCodeReadAndroid',
+          this._onBarCodeRead
+        )
       });
     }
   }
@@ -276,11 +292,12 @@ export default class Camera extends Component {
       mirrorImage: props.mirrorImage,
       fixOrientation: props.fixOrientation,
       cropToPreview: props.cropToPreview,
-      ...options,
+      ...options
     };
 
     if (options.mode === Camera.constants.CaptureMode.video) {
-      options.totalSeconds = options.totalSeconds > -1 ? options.totalSeconds : -1;
+      options.totalSeconds =
+        options.totalSeconds > -1 ? options.totalSeconds : -1;
       options.preferredTimeScale = options.preferredTimeScale || 30;
       options.cropToPreview = false;
       this.setState({ isRecording: true });
@@ -293,7 +310,7 @@ export default class Camera extends Component {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
       CameraManager.startPreview({
-        type: props.type,
+        type: props.type
       });
     } else {
       CameraManager.startPreview();
@@ -304,7 +321,7 @@ export default class Camera extends Component {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
       CameraManager.stopPreview({
-        type: props.type,
+        type: props.type
       });
     } else {
       CameraManager.stopPreview();
@@ -327,10 +344,21 @@ export default class Camera extends Component {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
       return CameraManager.hasFlash({
-        type: props.type,
+        type: props.type
       });
     }
     return CameraManager.hasFlash();
+  }
+
+  async getPreviewSize() {
+    if (Platform.OS === 'android') {
+      const props = convertNativeProps(this.props);
+      return await CameraManager.getPreviewSize({
+        type: props.type
+      });
+    } else {
+      throw new Error('Ratio is not supported on iOS');
+    }
   }
 }
 
@@ -344,10 +372,10 @@ const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
     importantForAccessibility: true,
     accessibilityLiveRegion: true,
     accessibilityComponentType: true,
-    onLayout: true,
-  },
+    onLayout: true
+  }
 });
 
 const styles = StyleSheet.create({
-  base: {},
+  base: {}
 });

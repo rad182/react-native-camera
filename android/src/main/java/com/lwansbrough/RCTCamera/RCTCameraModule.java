@@ -17,6 +17,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -28,6 +29,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -716,6 +718,21 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         if (camera == null) return;
 
         camera.startPreview();
+    }
+
+    @ReactMethod
+    public void getPreviewSize(final ReadableMap options, final Promise promise) {
+        RCTCamera instance = RCTCamera.getInstance();
+        if (null == instance) {
+            promise.reject("No camera found.");
+            return;
+        }
+
+        WritableMap map = Arguments.createMap();
+        map.putDouble("width", instance.getPreviewWidth(options.getInt("type")));
+        map.putDouble("height", instance.getPreviewHeight(options.getInt("type")));
+
+        promise.resolve(map);
     }
 
     @ReactMethod
